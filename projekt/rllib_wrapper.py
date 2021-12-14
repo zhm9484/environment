@@ -314,6 +314,8 @@ class RLlibEnv(Env, rllib.MultiAgentEnv):
       self.config = config['config']
       super().__init__(self.config)
 
+      self.registry = RLlibOverlayRegistry(self)
+
    def reward(self, ent):
       config      = self.config
 
@@ -372,10 +374,11 @@ class RLlibOverlayRegistry(OverlayRegistry):
    def __init__(self, realm):
       super().__init__(realm.config, realm)
 
-      self.overlays['values']       = Values
-      self.overlays['attention']    = Attention
-      self.overlays['tileValues']   = TileValues
-      self.overlays['entityValues'] = EntityValues
+   def init(self, trainer, model):
+      self.overlays['values']       = Values(self.config, self.realm, trainer, model)
+      self.overlays['attention']    = Attention(self.config, self.realm, trainer, model)
+      self.overlays['tileValues']   = TileValues(self.config, self.realm, trainer, model)
+      self.overlays['entityValues'] = EntityValues(self.config, self.realm, trainer, model)
 
 class RLlibOverlay(Overlay):
    '''RLlib Map overlay wrapper'''
@@ -391,7 +394,8 @@ class Attention(RLlibOverlay):
       players    = self.realm.realm.players
 
       attentions = defaultdict(list)
-      for idx, playerID in enumerate(obs):
+      idx = 0
+      for playerID in obs:
          if playerID not in players:
             continue
          player = players[playerID]
@@ -402,6 +406,7 @@ class Attention(RLlibOverlay):
 
          for tile, a in zip(obTiles, self.model.attention()[idx]):
             attentions[tile].append(float(a))
+         idx += 1
 
       sz    = self.config.TERRAIN_SIZE
       data  = np.zeros((sz, sz))
@@ -420,11 +425,13 @@ class Values(RLlibOverlay):
       walk over them. This is fast and does not require additional
       network forward passes'''
       players = self.realm.realm.players
-      for idx, playerID in enumerate(obs):
+      idx = 0
+      for playerID in obs:
          if playerID not in players:
             continue
          r, c = players[playerID].base.pos
          self.values[r, c] = float(self.model.value_function()[idx])
+         idx += 1
 
    def register(self, obs):
       colorized = overlay.twoTone(self.values[:, :])
@@ -486,6 +493,7 @@ class RLlibTrainer(ppo.PPOTrainer):
    def __init__(self, config, env=None, logger_creator=None):
       super().__init__(config, env, logger_creator)
       self.env_config = config['env_config']['config']
+      self.model           = self.get_policy('policy_0').model
 
       #1/sqrt(2)=76% win chance within beta, 95% win chance vs 3*beta=100 SR
       trueskill.setup(mu=1000, sigma=2*100/3, beta=100/3, tau=2/3, draw_probability=0)
@@ -511,11 +519,21 @@ class RLlibTrainer(ppo.PPOTrainer):
               stats[key] = np.mean(vals)
 
    def train(self):
+      #This is a hack to get RLlib not to train during
+      #Eval/render-only runs
+      if self.env_config.EVALUATE:
+          return self.evaluate()
+
       stats = super().train()
       self.post_mean(stats['custom_metrics'])
       return stats
 
    def evaluate(self):
+      #Update LOCAL EVALUATION WORKER with RLlib Overlay Registry
+      #Attempting to copy the trainer to a REMOTE evaluation worker will crash
+      if self.env_config.RENDER:
+         self.evaluation_workers.local_worker().foreach_env(lambda env: env.registry.init(self, self.model))
+
       stat_dict = super().evaluate()
       stats = stat_dict['evaluation']['custom_metrics']
  

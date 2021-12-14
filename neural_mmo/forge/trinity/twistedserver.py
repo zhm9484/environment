@@ -134,6 +134,7 @@ class Application:
       log.startLogging(sys.stdout)
 
       port = 8080
+
       self.factory          = WSServerFactory(u'ws://localhost:{}'.format(port), realm)
       self.factory.protocol = GodswordServerProtocol 
       resource              = WebSocketResource(self.factory)

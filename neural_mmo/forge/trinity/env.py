@@ -17,6 +17,7 @@ from neural_mmo.forge.blade.lib import log
 
 from neural_mmo.forge.trinity.overlay import OverlayRegistry
 from neural_mmo.forge.trinity.dataframe import DataType
+from neural_mmo.forge.trinity.agent import Agent
 
 import gym
 from pettingzoo import ParallelEnv
@@ -49,10 +50,13 @@ class Env(ParallelEnv):
          assert isinstance(config, Config), err.format(config)
 
       self.config     = config
+      self.obs        = None
+
+      self.client     = None
       self.overlay    = None
       self.overlayPos = [256, 256]
-      self.client     = None
-      self.obs        = None
+      self.pos        = None
+      self.cmd        = None
 
    @functools.lru_cache(maxsize=None)
    def observation_space(self, agent: int):
@@ -268,6 +272,9 @@ class Env(ParallelEnv):
 
             Provided for conformity with PettingZoo
       '''
+      if self.config.RENDER and self.obs:
+         self.registry.step(self.obs, self.pos, self.cmd)
+
       #Preprocess actions for neural models
       for entID in list(actions.keys()):
          ent = self.realm.players[entID]
@@ -457,9 +464,7 @@ class Env(ParallelEnv):
          from neural_mmo.forge.trinity.twistedserver import Application
          self.client = Application(self) 
 
-      pos, cmd = self.client.update(packet)
-      if self.obs:
-         self.registry.step(self.obs, pos, cmd)
+      self.pos, self.cmd = self.client.update(packet)
 
    def register(self, overlay):
       '''Register an overlay to be sent to the client
@@ -519,7 +524,8 @@ class Env(ParallelEnv):
             current = tile.ents
             n       = len(current)
             if n == 0:
-               ent = entity.Player(self.realm, (r, c), entID, pop, name, color)
+               agent = Agent(config, entID)
+               ent   = entity.Player(self.realm, (r, c), agent, pop)
             else:
                ent = list(current.values())[0]
 

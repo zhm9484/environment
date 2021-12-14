@@ -112,7 +112,8 @@ def run_tune_experiment(config):
    }
  
    restore     = None
-   config_name = config.__class__.__name__
+   #config_name = config.__class__.__name__
+   config_name = 'CompetitionRound1'
    algorithm   = wrapper.RLlibTrainer.name()
    if config.RESTORE:
       if config.RESTORE_ID:
@@ -181,16 +182,23 @@ class Anvil():
       '''Evaluate a model against EVAL_AGENTS models'''
       self.config.TRAINING_ITERATIONS     = 0
       self.config.EVALUATE                = True
-      self.config.EVALUATION_NUM_WORKERS  = self.config.NUM_WORKERS
-      self.config.EVALUATION_NUM_EPISODES = self.config.NUM_WORKERS
+      self.config.EVALUATION_NUM_WORKERS  = 1#self.config.NUM_WORKERS
+      self.config.EVALUATION_NUM_EPISODES = 1#self.config.NUM_WORKERS
 
       run_tune_experiment(self.config)
 
    def render(self, **kwargs):
       '''Start a WebSocket server that autoconnects to the 3D Unity client'''
       self.config.RENDER                  = True
-      self.config.NUM_WORKERS             = 1
-      self.evaluate(**kwargs)
+      self.config.EVALUATE                = True
+
+      #Essential parameters: local cores ONLY for rendering
+      #Setting LOCAL_MODE is not enough
+      self.config.NUM_WORKERS             = 0
+      self.config.EVALUATION_NUM_WORKERS  = 0
+      self.config.TRAINING_ITERATIONS     = 0
+
+      run_tune_experiment(self.config)
 
    def generate(self, **kwargs):
       '''Generate game maps for the current --config setting'''

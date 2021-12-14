@@ -32,8 +32,8 @@ class RLlibConfig(config.Achievement):
    RESUME                 = False
 
    RESTORE                = True
-   RESTORE_ID             = '627d' #Experiment name suffix
-   RESTORE_CHECKPOINT     = 882
+   RESTORE_ID             = 'Baseline' #Experiment name suffix
+   RESTORE_CHECKPOINT     = 1000
 
    #Policy specification
    AGENTS      = [Agent]
@@ -43,7 +43,7 @@ class RLlibConfig(config.Achievement):
    #Hardware and debug
    NUM_GPUS_PER_WORKER     = 0
    NUM_GPUS                = 0
-   EVALUATION_NUM_WORKERS  = 3
+   EVALUATION_NUM_WORKERS  = 1
    LOCAL_MODE              = False
    LOG_LEVEL               = 1
 
