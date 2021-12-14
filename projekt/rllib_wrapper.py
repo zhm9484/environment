@@ -14,7 +14,6 @@ from ray import rllib
 from pdb import set_trace as TT
 
 import ray.rllib.agents.ppo.ppo as ppo
-import ray.rllib.agents.ppo.appo as appo
 import ray.rllib.agents.impala.impala as impala
 from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.tune.integration.wandb import WandbLoggerCallback
@@ -489,6 +488,7 @@ class EntityValues(GlobalValues):
       super().init(zeroKey)
 
 
+#class RLlibTrainer(impala.ImpalaTrainer):
 class RLlibTrainer(ppo.PPOTrainer):
    def __init__(self, config, env=None, logger_creator=None):
       super().__init__(config, env, logger_creator)

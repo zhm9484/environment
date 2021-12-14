@@ -23,13 +23,7 @@ from projekt import rllib_wrapper as wrapper
 import projekt
 from projekt import config as base_config
 
-from neural_mmo.forge.blade.core import terrain
 from neural_mmo.forge.trinity.env import Env
-
-from neural_mmo.forge.blade.io.action.static import Action
-from neural_mmo.forge.ethyr.torch import utils
-
-from ray.rllib.env.wrappers.pettingzoo_env import ParallelPettingZooEnv
 
 class ConsoleLog(CLIReporter):
    def report(self, trials, done, *sys_info):
@@ -79,6 +73,7 @@ def run_tune_experiment(config):
       'train_batch_size': config.TRAIN_BATCH_SIZE,
       'rollout_fragment_length': config.ROLLOUT_FRAGMENT_LENGTH,
       'sgd_minibatch_size': config.SGD_MINIBATCH_SIZE,
+      'simple_optimizer': True,
       'num_sgd_iter': config.NUM_SGD_ITER,
       'framework': 'torch',
       'horizon': np.inf,
