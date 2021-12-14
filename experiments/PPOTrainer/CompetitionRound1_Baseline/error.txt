@@ -1,0 +1,16 @@
+Failure # 1 (occurred at 2021-12-13_23-29-35)
+Traceback (most recent call last):
+  File "/home/jsuarez/anaconda3/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 560, in start_trial
+    return self._start_trial(trial)
+  File "/home/jsuarez/anaconda3/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 463, in _start_trial
+    self.restore(trial)
+  File "/home/jsuarez/anaconda3/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 899, in restore
+    obj = TrainableUtil.checkpoint_to_object(value)
+  File "/home/jsuarez/anaconda3/lib/python3.8/site-packages/ray/tune/utils/trainable.py", line 73, in checkpoint_to_object
+    data_dict = TrainableUtil.pickle_checkpoint(checkpoint_path)
+  File "/home/jsuarez/anaconda3/lib/python3.8/site-packages/ray/tune/utils/trainable.py", line 54, in pickle_checkpoint
+    checkpoint_dir = TrainableUtil.find_checkpoint_dir(checkpoint_path)
+  File "/home/jsuarez/anaconda3/lib/python3.8/site-packages/ray/tune/utils/trainable.py", line 88, in find_checkpoint_dir
+    raise FileNotFoundError("Path does not exist", checkpoint_path)
+FileNotFoundError: [Errno Path does not exist] /home/jsuarez/neural-mmo/experiments/PPOTrainer/CompetitionRound1_Baseline/checkpoint_001000/checkpoint-1000
+
