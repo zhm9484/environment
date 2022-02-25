@@ -20,9 +20,9 @@ class Logger:
         self.stats[key].append(val)
 
 class EventLogger(Logger):
-    def __init__(self):
+    def __init__(self, log_file):
         super().__init__()
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO, filename=log_file, filemode='w')
 
     def log_min(self, key, val):
         if key in self.stats and val >= self.stats[key][-1]:
@@ -46,9 +46,9 @@ class Quill:
       self.player = Logger()
 
       if config.LOG_EVENTS:
-          self.event  = EventLogger()
+          self.event  = EventLogger(config.LOG_FILE)
 
-   def log_environment(self, key, val):
+   def log_env(self, key, val):
       self.env.log(key, val)
 
    def log_player(self, key, val):

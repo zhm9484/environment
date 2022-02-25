@@ -123,32 +123,37 @@ class Equipment(Item):
    def use(self, entity):
       if self.equipped.val:
          self.equipped.update(0)
-         self.unequip(entity)
-
-         if self.config.LOG_EVENTS and entity.isPlayer:
-             realm     = self.realm
-             equipment = entity.equipment
-             item_name = self.__class__.__name__
-             if realm.quill.event.log_max(f'{item_name}_level', self.level.val):
-                logging.info(f'EQUIPMENT: Equipped level {self.level.val} {item_name}')
-             if realm.quill.event.log_max(f'Item_Level', equipment.item_level):
-                logging.info(f'EQUIPMENT: Item level {equipment.item_level}')
-             if realm.quill.event.log_max(f'Mage_Attack', equipment.mage_attack):
-                logging.info(f'EQUIPMENT: Mage attack {equipment.mage_attack}')
-             if realm.quill.event.log_max(f'Mage_Defense', equipment.mage_defense):
-                logging.info(f'EQUIPMENT: Mage defense {equipment.mage_defense}')
-             if realm.quill.event.log_max(f'Range_Attack', equipment.range_attack):
-                logging.info(f'EQUIPMENT: Range attack {equipment.range_attack}')
-             if realm.quill.event.log_max(f'Range_Defense', equipment.range_defense):
-                logging.info(f'EQUIPMENT: Range defense {equipment.range_defense}')
-             if realm.quill.event.log_max(f'Melee_Attack', equipment.melee_attack):
-                logging.info(f'EQUIPMENT: Melee attack {equipment.melee_attack}')
-             if realm.quill.event.log_max(f'Melee_Defense', equipment.melee_defense):
-                logging.info(f'EQUIPMENT: Melee defense {equipment.melee_defense}')
+         equip = self.unequip(entity)
       else:
          self.equipped.update(1)
-         self.equip(entity)
+         equip = self.equip(entity)
 
+         if not self.config.LOG_EVENTS or not entity.isPlayer:
+             return equip
+
+         realm     = self.realm
+         equipment = entity.equipment
+         item_name = self.__class__.__name__
+
+         if realm.quill.event.log_max(f'{item_name}_level', self.level.val):
+            logging.info(f'EQUIPMENT: Equipped level {self.level.val} {item_name}')
+         if realm.quill.event.log_max(f'Item_Level', equipment.item_level):
+            logging.info(f'EQUIPMENT: Item level {equipment.item_level}')
+         if realm.quill.event.log_max(f'Mage_Attack', equipment.mage_attack):
+            logging.info(f'EQUIPMENT: Mage attack {equipment.mage_attack}')
+         if realm.quill.event.log_max(f'Mage_Defense', equipment.mage_defense):
+            logging.info(f'EQUIPMENT: Mage defense {equipment.mage_defense}')
+         if realm.quill.event.log_max(f'Range_Attack', equipment.range_attack):
+            logging.info(f'EQUIPMENT: Range attack {equipment.range_attack}')
+         if realm.quill.event.log_max(f'Range_Defense', equipment.range_defense):
+            logging.info(f'EQUIPMENT: Range defense {equipment.range_defense}')
+         if realm.quill.event.log_max(f'Melee_Attack', equipment.melee_attack):
+            logging.info(f'EQUIPMENT: Melee attack {equipment.melee_attack}')
+         if realm.quill.event.log_max(f'Melee_Defense', equipment.melee_defense):
+                logging.info(f'EQUIPMENT: Melee defense {equipment.melee_defense}')
+
+      return equip
+ 
 class Armor(Equipment):
    def __init__(self, realm, level, **kwargs):
       defense = realm.config.EQUIPMENT_ARMOR_DEFENSE(level)
@@ -255,30 +260,45 @@ class Rod(Tool):
     def equip(self, entity):
        if entity.skills.fishing.level >= self.level.val:
           super().equip(entity)
+          return True
+
+       return False
 
 class Gloves(Tool):
     ITEM_ID = 9
     def equip(self, entity):
        if entity.skills.herbalism.level >= self.level.val:
           super().equip(entity)
+          return True
+
+       return False
 
 class Pickaxe(Tool):
     ITEM_ID = 10
     def equip(self, entity):
        if entity.skills.prospecting.level >= self.level.val:
           super().equip(entity)
+          return True
+
+       return False
 
 class Chisel(Tool):
     ITEM_ID = 11
     def equip(self, entity):
        if entity.skills.carving.level >= self.level.val:
           super().equip(entity)
+          return True
+
+       return False
 
 class Arcane(Tool):
     ITEM_ID = 12
     def equip(self, entity):
        if entity.skills.alchemy.level >= self.level.val:
           super().equip(entity)
+          return True
+
+       return False
 
 class Ammunition(Equipment, Stack):
    def equip(self, entity):
@@ -309,6 +329,9 @@ class Scrap(Ammunition):
    def equip(self, entity):
       if entity.skills.melee.level >= self.level.val:
           super().equip(entity)
+          return True
+
+      return False
 
    @property
    def damage(self):
@@ -322,6 +345,9 @@ class Shaving(Ammunition):
    def equip(self, entity):
       if entity.skills.range.level >= self.level.val:
           super().equip(entity)
+          return True
+
+      return False
 
    @property
    def damage(self):
@@ -335,6 +361,9 @@ class Shard(Ammunition):
    def equip(self, entity):
       if entity.skills.mage.level >= self.level.val:
           super().equip(entity)
+          return True
+
+      return False
 
    @property
    def damage(self):
@@ -351,7 +380,7 @@ class Ration(Consumable):
 
    def use(self, entity):
       if entity.level < self.level.val:
-          return
+          return False
 
       if self.realm.quill.event.log_max(f'Consumed_Ration', self.level.val):
          logging.info(f'PROFESSION: Consumed level {self.level.val} ration')
@@ -362,6 +391,8 @@ class Ration(Consumable):
       entity.ration_level_consumed = max(entity.ration_level_consumed, self.level.val)
       entity.ration_consumed += 1
 
+      return True
+
 class Poultice(Consumable):
    ITEM_ID = 17
 
@@ -371,7 +402,7 @@ class Poultice(Consumable):
 
    def use(self, entity):
       if entity.level < self.level.val:
-          return
+          return False
 
       if self.realm.quill.event.log_max(f'Consumed_Poultice', self.level.val):
          logging.info(f'PROFESSION: Consumed level {self.level.val} poultice')
@@ -380,4 +411,5 @@ class Poultice(Consumable):
 
       entity.poultice_level_consumed = max(entity.poultice_level_consumed, self.level.val)
       entity.poultice_consumed       += 1
- 
+
+      return True

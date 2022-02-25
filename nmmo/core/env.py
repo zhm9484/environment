@@ -321,6 +321,7 @@ class Env(ParallelEnv):
             rewards[entID], infos[entID] = self.reward(ent)
             dones[entID]   = False
 
+      self.log_env()
       for entID, ent in self.dead.items():
          self.log_player(ent)
 
@@ -371,13 +372,13 @@ class Env(ParallelEnv):
       # Tasks
       if player.diary:
          if player.agent.scripted:
-            player.diary.update(self.realm, ent)
+            player.diary.update(self.realm, player)
 
          quill.log_player(f'{policy}_Tasks_Completed', player.diary.completed)
          quill.log_player(f'{policy}_Task_Reward',     player.diary.cumulative_reward)
 
          for achievement in player.diary.achievements:
-            player.log_player(achievement.name, float(achievement.completed))
+            quill.log_player(achievement.name, float(achievement.completed))
       else:
          quill.log_player(f'{policy}_Task_Reward', player.history.timeAlive.val)
 

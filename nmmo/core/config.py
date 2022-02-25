@@ -121,6 +121,9 @@ class Config(Template):
    LOG_EVENTS                   = True
    '''Whether to log events (semi-expensive)'''
 
+   LOG_FILE                     = None
+   '''Where to write logs (defaults to console)'''
+
    PLAYERS                      = []
    '''Player classes from which to spawn'''
 

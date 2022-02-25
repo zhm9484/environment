@@ -34,7 +34,7 @@ class Equipment:
 
    @property
    def item_level(self):
-       return self.total(lambda e: e.mage_defense)
+       return self.total(lambda e: e.level)
 
    @property
    def melee_attack(self):
