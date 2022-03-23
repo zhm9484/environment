@@ -83,7 +83,8 @@ class Env(ParallelEnv):
       self.client     = None
       self.obs        = None
 
-      self.replay     = Replay(config)
+      if config.SAVE_REPLAY:
+         self.replay     = Replay(config)
       self.has_reset  = False
 
       # Flat index actions
