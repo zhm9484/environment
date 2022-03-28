@@ -48,7 +48,7 @@ setup(
         'gym==0.21.0',
     ],
     extras_require=extra,
-    python_requires=">=3.9",
+    python_requires=">=3.7",
     license="MIT",
     author="Joseph Suarez",
     author_email="jsuarez@mit.edu",
