@@ -49,7 +49,7 @@ setup(
         'lz4==4.0.0',
     ],
     extras_require=extra,
-    python_requires=">=3.9",
+    python_requires=">=3.7",
     license="MIT",
     author="Joseph Suarez",
     author_email="jsuarez@mit.edu",
