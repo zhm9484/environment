@@ -43,7 +43,7 @@ setup(
         'Twisted==19.2.0',
         'vec-noise==1.1.4',
         'imageio==2.8.0',
-        'tqdm==4.61.1',
+        'tqdm==4.60.0',
         'pettingzoo==1.14.0',
         'gym==0.21.0',
     ],
