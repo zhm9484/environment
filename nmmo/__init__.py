@@ -15,7 +15,10 @@ motd = '''      ___           ___           ___           ___
 
 from . import scripting
 from .lib import material
-from .lib.rating import OpenSkillRating
+try:
+    from .lib.rating import OpenSkillRating
+except:
+    print('OpenSkill not installed and will not be available. Requires python 3.9')
 from .overlay import Overlay, OverlayRegistry
 from .io import action
 from .io.stimulus import Serialized
